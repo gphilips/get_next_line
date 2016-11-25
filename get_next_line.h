@@ -6,7 +6,7 @@
 /*   By: gphilips <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/11/19 16:50:27 by gphilips          #+#    #+#             */
-/*   Updated: 2016/11/24 17:55:48 by gphilips         ###   ########.fr       */
+/*   Updated: 2016/11/25 16:19:52 by gphilips         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,8 +18,9 @@
 # include <sys/stat.h>
 # include <fcntl.h>
 # include <unistd.h>
+# include <stdlib.h>
 
-# define BUFF_SIZE 32
+# define BUFF_SIZE 10
 
 int		get_next_line(const int fd, char **line);
 

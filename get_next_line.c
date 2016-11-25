@@ -6,13 +6,13 @@
 /*   By: gphilips <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/11/19 16:52:01 by gphilips          #+#    #+#             */
-/*   Updated: 2016/11/24 19:59:00 by gphilips         ###   ########.fr       */
+/*   Updated: 2016/11/25 17:09:46 by gphilips         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-static char	*ft_read_file(int fd, char *rest)
+static char	*ft_read_file(int fd, char *text)
 {
 	int		rd;
 	char	buff[BUFF_SIZE + 1];
@@ -22,32 +22,40 @@ static char	*ft_read_file(int fd, char *rest)
 	while ((rd = read(fd, buff, BUFF_SIZE)) > 0)
 	{
 		buff[rd] = '\0';
-		rest = ft_strjoin(rest, buff);
+		text = ft_strjoin(text, buff);
 	}
-	return (rest);
+	return (text);
+}
+
+static char	*ft_get_line(char *text, char *line)
+{
+	int		i;
+
+	i = 0;
+	while (text[i] != '\n' && text[i])
+		i++;
+	line = ft_strsub(text, 0, i);
+	text = ft_strchr(text, '\n');
+	return (line);
 }
 
 int			get_next_line(const int fd, char **line)
 {
-	static char		*rest;
+	static char		*text;
 	int				i;
 
 	if (fd == -1 || !line)
 		return (-1);
-	if (!(rest = (char*)malloc(sizeof(char) * BUFF_SIZE + 1)))
+	if (!(text = (char*)malloc(sizeof(char) * BUFF_SIZE + 1)))
 		return (-1);
-	rest = ft_read_file(fd, rest);
+	text = ft_read_file(fd, text);
 	i = 0;
-	if (rest[i] != '\0')
+	if (text[i] != '\0')
 	{
-		while (rest[i] != '\n' && rest[i])
-			i++;
-		if (i == 0)
-			*line = ft_strdup("");
-		else
+		while (text[i] != '\n' && text[i])
 		{
-			*line = ft_strsub(rest, 0, i);
-			rest = &rest[i + 1];
+			*line = ft_get_line(text, *line);
+			i++;
 		}
 		return (1);
 	}
