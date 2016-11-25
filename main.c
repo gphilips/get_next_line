@@ -3,12 +3,16 @@
 int		main(int argc, char **argv)
 {
 	int		fd;
-	char 	**line;
+	char 	*line;
 
-	if (argc != 1)
-		ft_putstr_fd(2, "error");
-	fd = open(argv[1], O_RDONLY);
-	get_next line(fd, &line);
-	close(fd);
+	if (argc != 2)
+		ft_putendl_fd("error", 2);
+	else
+	{
+		fd = open(argv[1], O_RDONLY);
+		while (get_next_line(fd, &line) > 0)
+			write(1, line, ft_strlen(line));
+		close(fd);
+	}
 	return (0);
 }

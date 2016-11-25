@@ -12,44 +12,46 @@
 
 #include "get_next_line.h"
 
-static int	ft_linelen(char *buff)
-{
-	int		i;
-
-	while (buff[i] && buff[i] == '\n')
-		i++;
-	return (i);
-}
-
-static char	ft_read_file(int fd, char **line)
+static char	*ft_read_file(int fd, char *rest)
 {
 	int		rd;
 	char	buff[BUFF_SIZE + 1];
 	int		i;
-	int		j;
 
 	i = 0;
-	j = 0;
-	if (fd < 0)
-		return (0);
-	while ((rd = read(fd, buff, BUFF_SIZE)) && buff[i] != '\n')
+	while ((rd = read(fd, buff, BUFF_SIZE)) > 0)
 	{
-		line[j] = buff[i];
-		i++;
+		buff[rd] = '\0';
+		rest = ft_strjoin(rest, buff);
 	}
-	return (line);
+	return (rest);
 }
 
 int			get_next_line(const int fd, char **line)
 {
 	static char		*rest;
-	
-	if (fd == -1)
-		return (1);
-	if (!(line = (char**)malloc(sizeof(char))))
-		return (NULL);
-	line = ft_read_file(fd, (char**)(line));
+	int				i;
 
-	if (!(rest = (char*)malloc(sizeof(char) *linelen + 1)))
-		return (NULL);
+	if (fd == -1 || !line)
+		return (-1);
+	if (!(rest = (char*)malloc(sizeof(char) * BUFF_SIZE + 1)))
+		return (-1);
+	rest = ft_read_file(fd, rest);
+	i = 0;
+	if (rest[i] != '\0')
+	{
+		while (rest[i] != '\n' && rest[i])
+			i++;
+		if (i == 0)
+			*line = ft_strdup("");
+		else
+		{
+			*line = ft_strsub(rest, 0, i);
+			rest = &rest[i + 1];
+		}
+		return (1);
+	}
+	else
+		*line = ft_strdup("");
+	return (0);
 }
