@@ -12,54 +12,59 @@
 
 #include "get_next_line.h"
 
-static char	*ft_read_file(int fd, char *text)
+static int		ft_read(int fd, char **str)
 {
-	int		rd;
-	char	buff[BUFF_SIZE + 1];
-	int		i;
+	char	*buff;
+	char	*newline;
+	int		rd_size;
 
-	i = 0;
-	while ((rd = read(fd, buff, BUFF_SIZE)) > 0)
+	if (!(buff = (char*)malloc(sizeof(char) * BUFF_SIZE + 1)))
+		return (-1);
+	newline = NULL;
+	rd_size = read(fd, buff, BUFF_SIZE);
+	if (rd_size > 0)
 	{
-		buff[rd] = '\0';
-		text = ft_strjoin(text, buff);
+		buff[rd_size] = '\0';
+		newline = ft_strjoin(*str, buff);
+		if (!newline)
+			return (-1);
+		ft_strdel(str);
+		free(buff);
+		*str = newline;
 	}
-	return (text);
+	return (rd_size);
 }
 
-static char	*ft_get_line(char *text, char *line)
+int		get_next_line(const int fd, char **line)
 {
-	int		i;
+	static char *str;
+	char		*endline;
+	int			rd;
 
-	i = 0;
-	while (text[i] != '\n' && text[i])
-		i++;
-	line = ft_strsub(text, 0, i);
-	text = ft_strchr(text, '\n');
-	return (line);
-}
-
-int			get_next_line(const int fd, char **line)
-{
-	static char		*text;
-	int				i;
-
-	if (fd == -1 || !line)
-		return (-1);
-	if (!(text = (char*)malloc(sizeof(char) * BUFF_SIZE + 1)))
-		return (-1);
-	text = ft_read_file(fd, text);
-	i = 0;
-	if (text[i] != '\0')
+	if (!str)
 	{
-		while (text[i] != '\n' && text[i])
+		if (!(str = (char*)malloc(sizeof(char))))
+			return (-1);
+	}
+	endline = ft_strchr(str, '\n');
+	while (!endline)
+	{
+		rd = ft_read(fd, &str);
+		 if (rd == 0)
 		{
-			*line = ft_get_line(text, *line);
-			i++;
+			endline = ft_strchr(str, '\0');
+			if (str == endline)
+			return (0);
 		}
-		return (1);
+		else if (rd < 0)
+			return (-1);
+		else
+			endline = ft_strchr(str, '\n');
 	}
-	else
-		*line = ft_strdup("");
-	return (0);
+	*line = ft_strsub(str, 0, endline - str);
+	if (!(*line))
+		return (-1);
+	free(str);
+	str = ft_strdup(endline + 1);
+	return (1);
 }
