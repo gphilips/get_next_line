@@ -15,22 +15,25 @@
 static int		ft_read(int fd, char **str)
 {
 	char	*buff;
-	char	*newline;
 	int		rd_size;
+	char	*tmp;
 
 	if (!(buff = ft_strnew(BUFF_SIZE)))
 		return (-1);
-	newline = NULL;
 	rd_size = read(fd, buff, BUFF_SIZE);
 	if (rd_size > 0)
 	{
 		buff[rd_size] = '\0';
-		if (!(newline = ft_strjoin(*str, buff)))
+		tmp = *str;
+		if (!(*str = ft_strjoin(tmp, buff)))
 			return (-1);
-		free(*str);
-		*str = newline;
+		ft_strdel(&tmp);
+		ft_strdel(&buff);
 	}
-	free(buff);
+	else if (rd_size < 0)
+		return (-1);
+	else
+		return (0);
 	return (rd_size);
 }
 
@@ -55,7 +58,7 @@ int		get_next_line(const int fd, char **line)
 		{
 			endline = ft_strchr(str, '\0');
 			if (str == endline)
-			return (0);
+				return (0);
 		}
 		else if (rd < 0)
 			return (-1);
@@ -64,8 +67,7 @@ int		get_next_line(const int fd, char **line)
 	}
 	if (!(*line = ft_strsub(str, 0, endline - str)))
 		return (-1);
-	if (!(endline = ft_strdup(endline + 1)))
-		return (-1);
+	endline = ft_strdup(endline + 1);
 	free(str);
 	str = endline;
 	return (1);
