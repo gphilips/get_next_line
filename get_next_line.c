@@ -6,7 +6,7 @@
 /*   By: gphilips <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/11/19 16:52:01 by gphilips          #+#    #+#             */
-/*   Updated: 2016/11/25 17:09:46 by gphilips         ###   ########.fr       */
+/*   Updated: 2016/12/02 19:22:48 by gphilips         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,12 +14,10 @@
 
 static int		ft_read(int fd, char **str)
 {
-	char	*buff;
+	char	buff[BUFF_SIZE + 1];
 	int		rd_size;
 	char	*tmp;
 
-	if (!(buff = ft_strnew(BUFF_SIZE)))
-		return (-1);
 	rd_size = read(fd, buff, BUFF_SIZE);
 	if (rd_size > 0)
 	{
@@ -27,34 +25,33 @@ static int		ft_read(int fd, char **str)
 		tmp = *str;
 		if (!(*str = ft_strjoin(tmp, buff)))
 			return (-1);
-		ft_strdel(&tmp);
-		ft_strdel(&buff);
+		free(tmp);
 	}
 	else if (rd_size < 0)
 		return (-1);
 	else
 		return (0);
-	return (rd_size);
+	return (1);
 }
 
-int		get_next_line(const int fd, char **line)
+int				get_next_line(const int fd, char **line)
 {
 	static char *str;
 	char		*endline;
 	int			rd;
 
-	if (fd < 0 || BUFF_SIZE < 1)
+	if (fd < 0 || !line || BUFF_SIZE < 1)
 		return (-1);
 	if (!str)
 	{
-		if (!(str = ft_strnew(1)))
+		if (!(str = ft_strnew(0)))
 			return (-1);
 	}
 	endline = ft_strchr(str, '\n');
 	while (!endline)
 	{
 		rd = ft_read(fd, &str);
-		 if (rd == 0)
+		if (rd == 0)
 		{
 			endline = ft_strchr(str, '\0');
 			if (str == endline)
@@ -65,8 +62,7 @@ int		get_next_line(const int fd, char **line)
 		else
 			endline = ft_strchr(str, '\n');
 	}
-	if (!(*line = ft_strsub(str, 0, endline - str)))
-		return (-1);
+	*line = ft_strsub(str, 0, endline - str);
 	endline = ft_strdup(endline + 1);
 	free(str);
 	str = endline;
