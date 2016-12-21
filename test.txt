@@ -1,0 +1,7 @@
+Il s'écrit dans un fichier ayant pour extension .c. On le modifie avec n'importe quel éditeur de texte (emacs, vim, etc).
+Un code C s'exécute en suivant des instructions lignes par lignes dans des fonctions.
+Une fonction se compose de plusieurs partie :
+Déclaration des variables utilisées
+Instructions
+Valeur retournée en fin de fonction (facultatif)
+La première fonction appelée est la fonction main. Il doit toujours y en avoir une dans un programme en C.
