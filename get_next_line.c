@@ -12,22 +12,38 @@
 
 #include "get_next_line.h"
 
+static char		*ft_str_to_endline(char *str, char c)
+{
+	char	*dest;
+	int		i;
+	int		len;
+
+	len = ft_strlen(str);
+	dest = ft_strnew(len);
+	i = 0;
+	while (str[i] != c && i < len)
+	{
+		dest[i] = str[i];
+		i++;
+	}
+	return (dest);
+}
+
 static int		ft_str_to_line(char *str, char **line)
 {
 	char	*endline;
 
-	endline = NULL;
 	endline = ft_strchr(str, '\n');
 	if (endline)
 	{
-		*line = ft_strdup(str);
+		*line = ft_str_to_endline(str, '\n');
 		ft_strcpy(str, endline + 1);
 		return (1);
 	}
 	else if (ft_strlen(str) > 0)
 	{
 		*line = ft_strdup(str);
-		str = NULL;
+		*str = '\0';
 		return (1);
 	}
 	return (0);
@@ -36,22 +52,18 @@ static int		ft_str_to_line(char *str, char **line)
 int				get_next_line(const int fd, char **line)
 {
 	char		buff[BUFF_SIZE + 1];
-	static char *str;
+	static char *str = NULL;
 	char		*endline;
 	char		*tmp;
 	int			rd;
 
-	str = NULL;
-	endline = NULL;
-	tmp = NULL;
 	if (fd < 0 || !line || BUFF_SIZE < 1)
 		return (-1);
 	if (!str)
 		str = ft_strnew(0);
 	endline = ft_strchr(str, '\n');
-	while (!endline)
+	while ((rd = read(fd, buff, BUFF_SIZE)) && !endline)
 	{
-		rd = read(fd, buff, BUFF_SIZE);
 		if (rd == 0)
 			return (ft_str_to_line(str, line));
 		else if (rd < 0)
