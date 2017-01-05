@@ -6,7 +6,7 @@
 /*   By: gphilips <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/11/19 16:50:27 by gphilips          #+#    #+#             */
-/*   Updated: 2016/11/25 16:19:52 by gphilips         ###   ########.fr       */
+/*   Updated: 2017/01/05 15:24:18 by gphilips         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,8 +20,18 @@
 # include <unistd.h>
 # include <stdlib.h>
 
-# define BUFF_SIZE 10
+# include <stdio.h>
 
-int		get_next_line(const int fd, char **line);
+# define BUFF_SIZE 5
+
+typedef struct		s_gnl
+{
+	int				fd;
+	char			*str;
+	char			*tmp;
+	struct s_gnl	*next;
+}					t_gnl;
+
+int					get_next_line(const int fd, char **line);
 
 #endif

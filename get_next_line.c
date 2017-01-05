@@ -6,11 +6,45 @@
 /*   By: gphilips <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/11/19 16:52:01 by gphilips          #+#    #+#             */
-/*   Updated: 2016/12/02 19:22:48 by gphilips         ###   ########.fr       */
+/*   Updated: 2017/01/05 15:19:38 by gphilips         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
+
+static t_gnl	*ft_create_elem(int fd)
+{
+	t_gnl	*new;
+
+	if (!(new = (t_gnl*)malloc(sizeof(t_gnl))))
+		return (NULL);
+	new->fd = fd;
+	new->str = ft_strnew(0);
+	new->tmp = NULL;
+	new->next = NULL;
+	return (new);
+}
+
+static t_gnl	*ft_find_fd(t_gnl *list, int fd)
+{
+	t_gnl	*start;
+	t_gnl	*tmp;
+
+	start = list;
+	while (start != NULL)
+	{
+		if (start->fd == fd)
+			return (start);
+		if (start->next == NULL)
+		{
+			tmp = ft_create_elem(fd);
+			start->next = tmp;
+			return (tmp);
+		}
+		start = start->next;
+	}
+	return (NULL);
+}
 
 static int		ft_str_to_line(char *str, char **line)
 {
@@ -34,25 +68,28 @@ static int		ft_str_to_line(char *str, char **line)
 
 int				get_next_line(const int fd, char **line)
 {
-	char		buff[BUFF_SIZE + 1];
-	static char *str = NULL;
-	char		*tmp;
-	int			rd;
+	char			buff[BUFF_SIZE + 1];
+	static t_gnl	*str = NULL;
+	int				rd;
+	t_gnl			*list;
 
 	if (fd < 0 || !line || BUFF_SIZE < 1)
 		return (-1);
 	if (!str)
-		str = ft_strnew(0);
-	while (!(ft_strchr(str, '\n')) && (rd = read(fd, buff, BUFF_SIZE)))
+		str = ft_create_elem(fd);
+	list = ft_find_fd(str, fd);
+	while (!(ft_strchr(list->str, '\n')))
 	{
+		rd = read(fd, buff, BUFF_SIZE);
 		if (rd == 0)
-			return (ft_str_to_line(str, line));
+			break ;
 		else if (rd < 0)
 			return (-1);
 		buff[rd] = '\0';
-		tmp = ft_strjoin(str, buff);
-		free(str);
-		str = tmp;
+		list->tmp = ft_strjoin(list->str, buff);
+		free(list->str);
+		list->str = ft_strdup(list->tmp);
+		free(list->tmp);
 	}
-	return (ft_str_to_line(str, line));
+	return (ft_str_to_line(list->str, line));
 }
